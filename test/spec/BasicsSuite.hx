@@ -2,9 +2,8 @@ package spec;
 
 class BasicsSuite extends Suite {
 	function execute() {
-		var root = Sys.getCwd();
-		var adaptor = new SysAdaptor(Path.join([root, 'test']));
-		var dir = new Directory('fixture', adaptor);
+		var adaptor = new SysAdaptor(Sys.getCwd());
+		var dir = new Directory('test/fixture', adaptor);
 
 		describe('kit.file.Directory', () -> {
 			it('should list files in a directory', spec -> {
@@ -14,6 +13,11 @@ class BasicsSuite extends Suite {
 					files.length.should().be(2);
 					true;
 				});
+			});
+
+			it('should have information about the directory', () -> {
+				dir.meta.name.should().be('fixture');
+				dir.meta.path.should().be('test/fixture');
 			});
 
 			it('should give access to files', spec -> {
