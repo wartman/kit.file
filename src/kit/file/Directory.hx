@@ -3,63 +3,61 @@ package kit.file;
 using kit.file.Path;
 
 class Directory {
-	public final meta:DirectoryMeta;
-
+	final path:String;
 	final adaptor:Adaptor;
 
 	public function new(path, adaptor) {
-		this.meta = {
-			path: path,
-			name: Path.withoutDirectory(path)
-		};
+		this.path = path;
 		this.adaptor = adaptor;
 	}
 
+	public function getMeta() {
+		return adaptor.getMeta(path);
+	}
+
 	public function exists():Future<Bool> {
-		return adaptor.exists(meta.path);
+		return adaptor.exists(path);
 	}
 
-	public function getFile(file:String):Task<File> {
-		return adaptor.getMeta(Path.join([meta.path, file])).next(meta -> new File(meta, adaptor));
-	}
-
-	public function createFile(file:String) {
-		return new File({
-			path: Path.join([meta.path, file]),
-			name: file.withoutDirectory().withoutExtension(),
-			created: Date.now(),
-			updated: Date.now(),
-			size: 0
-		}, adaptor);
-	}
-
-	public function createDirectory(path:String) {
-		return adaptor.createDirectory(Path.join([meta.path, path])).next(created -> switch created {
-			case true: new Directory(meta.path, adaptor);
-			case false: new Error(InternalError, 'Could not create directory');
+	public function create():Task<Directory> {
+		return exists().flatMap(exists -> switch exists {
+			case false:
+				adaptor.createDirectory(path).next(created -> switch created {
+					case true: this;
+					case false: new Error(InternalError, 'Could not create directory');
+				});
+			case true: Task.ofResult(Ok(this));
 		});
 	}
 
+	public function file(file:String):File {
+		return new File(Path.join([path, file]), adaptor);
+	}
+
+	public function directory(path:String) {
+		return new Directory(Path.join([this.path, path]), adaptor);
+	}
+
 	public function listFiles():Task<Array<File>> {
-		return adaptor.listFiles(meta.path).next(metas -> [for (meta in metas) new File(meta, adaptor)]);
+		return adaptor.listFiles(path).next(metas -> [for (meta in metas) new File(path, adaptor, meta)]);
 	}
 
 	public function openDirectory(name:String) {
-		return new Directory(Path.join([meta.path, name]), adaptor);
+		return new Directory(Path.join([path, name]), adaptor);
 	}
 
 	public function openDirectoryIfExists(name:String):Task<Directory> {
 		return Task.ofFuture(adaptor.exists(name)).next(exists -> switch exists {
-			case true: new Directory(Path.join([meta.path, name]), adaptor);
+			case true: new Directory(Path.join([path, name]), adaptor);
 			case false: new Error(NotFound, 'Directory not found');
 		});
 	}
 
 	public function listDirectories() {
-		return adaptor.listDirectories(meta.path).next(paths -> [for (path in paths) new Directory(path, adaptor)]);
+		return adaptor.listDirectories(path).next(paths -> [for (path in paths) new Directory(path, adaptor)]);
 	}
 
 	public function remove() {
-		return adaptor.remove(meta.path);
+		return adaptor.remove(path);
 	}
 }

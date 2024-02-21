@@ -1,5 +1,6 @@
 package kit.file;
 
+import sys.io.*;
 import haxe.io.Bytes;
 
 interface Adaptor {
@@ -13,4 +14,5 @@ interface Adaptor {
 	public function copy(source:String, dest:String):Task<Bool>;
 	public function write(path:String, data:String):Task<Bool>;
 	public function remove(path:String):Task<Bool>;
+	public function open(path:String, handle:(input:FileInput) -> Void):Void;
 }

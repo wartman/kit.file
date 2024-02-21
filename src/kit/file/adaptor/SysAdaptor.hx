@@ -1,10 +1,11 @@
 package kit.file.adaptor;
 
 import haxe.io.Bytes;
+import sys.io.*;
 
+using haxe.io.Path;
 using sys.FileSystem;
 using sys.io.File;
-using haxe.io.Path;
 
 class SysAdaptor implements Adaptor {
 	final root:String;
@@ -92,6 +93,10 @@ class SysAdaptor implements Adaptor {
 		if (!fullPath.exists() || fullPath.isDirectory()) return false;
 		fullPath.deleteFile();
 		return true;
+	}
+
+	public function open(path:String, handle:(input:FileInput) -> Void) {
+		handle(File.read(path));
 	}
 
 	function resolvePath(path:String) {
