@@ -43,29 +43,28 @@ class File {
 		return adaptor.remove(path);
 	}
 
+	// @todo: This is not ready yet.
 	public function stream(length:Int):Stream<Bytes> {
-		return Stream.generator(yield -> {
-			getMeta().handle(result -> switch result {
-				case Ok(meta):
-					adaptor.open(path, input -> handleStream(length, meta, input, yield));
-				case Error(error):
-					yield(Errored(error));
-			});
-		});
-	}
+		function handleStream(length:Int, meta:FileMeta, input:sys.io.FileInput, yield:(value:kit.Stream.StreamResult<Bytes, kit.Error>) -> Void) {
+			switch input.eof() {
+				case true:
+					input.close();
+					yield(Depleted);
+				case false:
+					var pos = input.tell();
+					var remaining = meta.size - pos;
 
-	function handleStream(length:Int, meta:FileMeta, input:sys.io.FileInput, yield:(value:kit.Stream.StreamResult<Bytes, kit.Error>) -> Void) {
-		switch input.eof() {
-			case true:
-				input.close();
-				yield(Depleted);
-			case false:
-				var pos = input.tell();
-				var remaining = meta.size - pos;
+					if (length > remaining) length = remaining;
 
-				if (length > remaining) length = remaining;
-
-				yield(Streaming(input.read(length), Stream.generator(handleStream.bind(length, meta, input))));
+					yield(Streaming(input.read(length), Stream.generator(handleStream.bind(length, meta, input))));
+			}
 		}
+
+		return Stream.generator(yield -> getMeta().handle(result -> switch result {
+			case Ok(meta):
+				adaptor.open(path, input -> handleStream(length, meta, input, yield));
+			case Error(error):
+				yield(Errored(error));
+		}));
 	}
 }
