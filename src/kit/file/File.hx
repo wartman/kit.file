@@ -43,7 +43,7 @@ class File {
 		return adaptor.remove(path);
 	}
 
-	// @todo: This is not ready yet.
+	// @todo: This is not ready yet.	
 	public function stream(length:Int):Stream<Bytes> {
 		function handleStream(length:Int, meta:FileMeta, input:sys.io.FileInput, yield:(value:kit.Stream.StreamResult<Bytes, kit.Error>) -> Void) {
 			switch input.eof() {

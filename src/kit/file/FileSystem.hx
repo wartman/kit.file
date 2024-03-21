@@ -17,11 +17,7 @@ class FileSystem {
 		return new Directory(path, adaptor);
 	}
 
-	public function file(path:String):Task<File> {
+	public function file(path:String):File {
 		return new File(path, adaptor);
-	}
-
-	public function fileExists(path:String):Task<Bool> {
-		return adaptor.exists(path);
 	}
 }
