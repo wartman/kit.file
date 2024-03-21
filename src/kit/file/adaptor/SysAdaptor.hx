@@ -24,6 +24,7 @@ class SysAdaptor implements Adaptor {
 		return Task.resolve({
 			path: path,
 			name: path.withoutDirectory().withoutExtension(),
+			fullPath: fullPath,
 			created: info.ctime,
 			updated: info.mtime,
 			size: info.size
