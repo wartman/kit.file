@@ -43,7 +43,7 @@ class File {
 		return adaptor.remove(path);
 	}
 
-	// @todo: This is not ready yet.	
+	// @todo: This is not ready yet.
 	public function stream(length:Int):Stream<Bytes> {
 		function handleStream(length:Int, meta:FileMeta, input:sys.io.FileInput, yield:(value:kit.Stream.StreamResult<Bytes, kit.Error>) -> Void) {
 			switch input.eof() {
@@ -54,6 +54,7 @@ class File {
 					var pos = input.tell();
 					var remaining = meta.size - pos;
 
+					if (remaining == 0) return yield(Depleted);
 					if (length > remaining) length = remaining;
 
 					yield(Streaming(input.read(length), Stream.generator(handleStream.bind(length, meta, input))));

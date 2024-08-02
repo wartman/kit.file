@@ -2,10 +2,5 @@
 -cp test
 
 -lib kit
--lib kit.spec
--lib hxnodejs
 
--main Run
-
--js dist/test.js
---cmd node dist/test
+--run Run
