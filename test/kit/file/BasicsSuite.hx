@@ -46,6 +46,14 @@ class BasicsSuite extends Suite {
 			});
 	}
 
+	@:test(expects = 1)
+	function shouldErrorWhenReadingNonExistentFile() {
+		return dir.file('bip.text').read().recover(err -> {
+			err.code.equals(InternalError);
+			Future.immediate('ok');
+		});
+	}
+
 	// @:test(expects = 1)
 	// function shouldLetYouCreateSubdirectories() {
 	// 	return dir.directory('foo').create().next(sub -> {

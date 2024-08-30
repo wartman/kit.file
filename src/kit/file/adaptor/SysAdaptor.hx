@@ -42,7 +42,8 @@ class SysAdaptor implements Adaptor {
 
 	public function listDirectories(path:String):Task<Array<String>> {
 		var fullPath = resolvePath(path);
-		return fullPath.readDirectory().filter(name -> Path.join([fullPath, name]).isDirectory()).map(name -> Path.join([path, name]));
+		var paths = try fullPath.readDirectory() catch (e) return new Error(InternalError, e.message);
+		return paths.filter(name -> Path.join([fullPath, name]).isDirectory()).map(name -> Path.join([path, name]));
 	}
 
 	public function createDirectory(path:String):Task<Bool> {
@@ -61,11 +62,11 @@ class SysAdaptor implements Adaptor {
 	}
 
 	public function read(path:String):Task<String> {
-		return resolvePath(path).getContent();
+		return try resolvePath(path).getContent() catch (e) return new Error(InternalError, e.message);
 	}
 
 	public function readBytes(path:String):Task<Bytes> {
-		return resolvePath(path).getBytes();
+		return try resolvePath(path).getBytes() catch (e) return new Error(InternalError, e.message);
 	}
 
 	public function copy(source:String, dest:String):Task<Bool> {
@@ -75,8 +76,14 @@ class SysAdaptor implements Adaptor {
 		if (!fullSource.exists()) {
 			return new Error(NotFound, 'The file $fullSource cannot be copied as it does not exist');
 		}
+
 		return ensureDir(fullDest.directory()).next(_ -> {
-			fullSource.copy(dest);
+			try {
+				fullSource.copy(dest);
+			} catch (e) {
+				return new Error(InternalError, e.message);
+			}
+
 			return true;
 		});
 	}
@@ -84,7 +91,11 @@ class SysAdaptor implements Adaptor {
 	public function write(path:String, data:String):Task<Bool> {
 		var fullPath = resolvePath(path);
 		return ensureDir(fullPath.directory()).next(_ -> {
-			fullPath.saveContent(data);
+			try {
+				fullPath.saveContent(data);
+			} catch (e) {
+				return new Error(InternalError, e.message);
+			}
 			return true;
 		});
 	}
