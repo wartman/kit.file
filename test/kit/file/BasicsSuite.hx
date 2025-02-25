@@ -33,20 +33,6 @@ class BasicsSuite extends Suite {
 	}
 
 	@:test(expects = 1)
-	function shouldLetYouStreamBytesFromFiles() {
-		return dir.file('a.txt')
-			.stream(6)
-			.reduce(new StringBuf(), (accumulator, item) -> {
-				accumulator.add(item.toString());
-				accumulator;
-			})
-			.next(buf -> {
-				buf.toString().equals('This is file a.');
-				Task.nothing();
-			});
-	}
-
-	@:test(expects = 1)
 	function shouldErrorWhenReadingNonExistentFile() {
 		return dir.file('bip.text').read().recover(err -> {
 			err.code.equals(InternalError);
