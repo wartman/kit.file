@@ -21,7 +21,7 @@ class SysAdaptor implements Adaptor {
 
 		var info = fullPath.stat();
 
-		return Task.resolve({
+		return Task.ok({
 			path: path,
 			name: path.withoutDirectory().withoutExtension(),
 			fullPath: fullPath,
