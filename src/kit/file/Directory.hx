@@ -22,7 +22,7 @@ class Directory {
 	public function create():Task<Directory> {
 		return exists().flatMap(exists -> switch exists {
 			case false:
-				adaptor.createDirectory(path).next(created -> switch created {
+				adaptor.createDirectory(path).then(created -> switch created {
 					case true: this;
 					case false: new Error(InternalError, 'Could not create directory');
 				});
@@ -39,7 +39,7 @@ class Directory {
 	}
 
 	public function listFiles():Task<Array<File>> {
-		return adaptor.listFiles(path).next(metas -> [for (meta in metas) new File(path, adaptor, meta)]);
+		return adaptor.listFiles(path).then(metas -> [for (meta in metas) new File(meta.path, adaptor, meta)]);
 	}
 
 	public function openDirectory(name:String) {
@@ -47,14 +47,14 @@ class Directory {
 	}
 
 	public function openDirectoryIfExists(name:String):Task<Directory> {
-		return Task.ofFuture(adaptor.exists(name)).next(exists -> switch exists {
+		return Task.ofFuture(adaptor.exists(name)).then(exists -> switch exists {
 			case true: new Directory(Path.join([path, name]), adaptor);
 			case false: new Error(NotFound, 'Directory not found');
 		});
 	}
 
 	public function listDirectories() {
-		return adaptor.listDirectories(path).next(paths -> [for (path in paths) new Directory(path, adaptor)]);
+		return adaptor.listDirectories(path).then(paths -> [for (path in paths) new Directory(path, adaptor)]);
 	}
 
 	public function remove() {

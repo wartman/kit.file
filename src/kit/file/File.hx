@@ -14,7 +14,7 @@ class File {
 
 	public function getMeta():Task<FileMeta> {
 		if (meta != null) return meta;
-		return adaptor.getMeta(path).next(meta -> this.meta = meta);
+		return adaptor.getMeta(path).then(meta -> this.meta = meta);
 	}
 
 	public function exists() {

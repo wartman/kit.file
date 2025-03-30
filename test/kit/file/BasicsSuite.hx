@@ -9,7 +9,7 @@ class BasicsSuite extends Suite {
 
 	@:test(expects = 1)
 	function shouldListFilesInADirectory() {
-		return dir.listFiles().next(files -> {
+		return dir.listFiles().then(files -> {
 			files.length.equals(2);
 			true;
 		});
@@ -17,7 +17,7 @@ class BasicsSuite extends Suite {
 
 	@:test(expects = 2)
 	function shouldHaveInformationAboutTheDirectory() {
-		return dir.getMeta().next(meta -> {
+		return dir.getMeta().then(meta -> {
 			meta.name.equals('fixture');
 			meta.path.equals('test/fixture');
 			true;
@@ -26,7 +26,7 @@ class BasicsSuite extends Suite {
 
 	@:test(expects = 1)
 	function shouldGiveAccessToFiles() {
-		return dir.file('a.txt').read().next(content -> {
+		return dir.file('a.txt').read().then(content -> {
 			content.equals('This is file a.');
 			true;
 		});
@@ -42,7 +42,7 @@ class BasicsSuite extends Suite {
 
 	// @:test(expects = 1)
 	// function shouldLetYouCreateSubdirectories() {
-	// 	return dir.directory('foo').create().next(sub -> {
+	// 	return dir.directory('foo').create().then(sub -> {
 	// 		sub.exists().flatMap(exists -> {
 	// 			exists.equals(true);
 	// 			Task.nothing();

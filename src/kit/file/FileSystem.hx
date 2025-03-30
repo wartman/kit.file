@@ -10,7 +10,7 @@ class FileSystem {
 	}
 
 	public function listDirectories() {
-		return adaptor.listDirectories('').next(paths -> [for (path in paths) new Directory(path, adaptor)]);
+		return adaptor.listDirectories('').then(paths -> [for (path in paths) new Directory(path, adaptor)]);
 	}
 
 	public function directory(path:String):Directory {
