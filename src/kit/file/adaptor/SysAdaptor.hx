@@ -68,11 +68,15 @@ class SysAdaptor implements Adaptor {
 	}
 
 	public function read(path:String):Task<String> {
-		return try resolvePath(path).getContent() catch (e) return new Error(InternalError, e.message);
+		var fullPath = resolvePath(path);
+		if (!fullPath.exists()) return new Error(NotFound, 'The file $path does not exist');
+		return try fullPath.getContent() catch (e) return new Error(InternalError, e.message);
 	}
 
 	public function readBytes(path:String):Task<Bytes> {
-		return try resolvePath(path).getBytes() catch (e) return new Error(InternalError, e.message);
+		var fullPath = resolvePath(path);
+		if (!fullPath.exists()) return new Error(NotFound, 'The file $path does not exist');
+		return try fullPath.getBytes() catch (e) return new Error(InternalError, e.message);
 	}
 
 	public function copy(source:String, dest:String):Task<Bool> {

@@ -35,7 +35,7 @@ class BasicsSuite extends Suite {
 	@:test(expects = 1)
 	function shouldErrorWhenReadingNonExistentFile() {
 		return dir.file('bip.text').read().recover(err -> {
-			err.code.equals(InternalError);
+			err.code.equals(NotFound);
 			Future.immediate('ok');
 		});
 	}
