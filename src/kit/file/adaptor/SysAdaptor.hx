@@ -3,6 +3,7 @@ package kit.file.adaptor;
 import haxe.io.Bytes;
 import sys.io.*;
 
+using Kit;
 using haxe.io.Path;
 using sys.FileSystem;
 using sys.io.File;
@@ -37,13 +38,18 @@ class SysAdaptor implements Adaptor {
 			return new Error(NotFound, 'No directory exists at $path');
 		}
 		var paths = try fullPath.readDirectory() catch (e) return new Error(InternalError, e.message);
-		return Task.parallel(...paths.filter(name -> !Path.join([fullPath, name]).isDirectory()).map(name -> getMeta(Path.join([path, name]))));
+		return paths
+			.filter(name -> !Path.join([fullPath, name]).isDirectory())
+			.map(name -> getMeta(Path.join([path, name])))
+			.inParallel();
 	}
 
 	public function listDirectories(path:String):Task<Array<String>> {
 		var fullPath = resolvePath(path);
 		var paths = try fullPath.readDirectory() catch (e) return new Error(InternalError, e.message);
-		return paths.filter(name -> Path.join([fullPath, name]).isDirectory()).map(name -> Path.join([path, name]));
+		return paths
+			.filter(name -> Path.join([fullPath, name]).isDirectory())
+			.map(name -> Path.join([path, name]));
 	}
 
 	public function createDirectory(path:String):Task<Bool> {
@@ -77,7 +83,7 @@ class SysAdaptor implements Adaptor {
 			return new Error(NotFound, 'The file $fullSource cannot be copied as it does not exist');
 		}
 
-		return ensureDir(fullDest.directory()).next(_ -> {
+		return ensureDir(fullDest.directory()).then(_ -> {
 			try {
 				fullSource.copy(dest);
 			} catch (e) {
@@ -90,7 +96,7 @@ class SysAdaptor implements Adaptor {
 
 	public function write(path:String, data:String):Task<Bool> {
 		var fullPath = resolvePath(path);
-		return ensureDir(fullPath.directory()).next(_ -> {
+		return ensureDir(fullPath.directory()).then(_ -> {
 			try {
 				fullPath.saveContent(data);
 			} catch (e) {
